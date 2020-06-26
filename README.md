@@ -1,44 +1,39 @@
-Name
-====
+# Name
 
 haproxy-cloudflare-jwt-validator - JSON Web Token validation for haproxy
 
-Description
-===========
+# Description
 
 This was tested & developed with HAProxy version 1.8.25 & Lua version 5.3.
 This library provides the ability to validate JWT headers sent by Cloudflare Access. 
 
-Installation
-============
+# Installation
 
 Install the following dependencies:
+
 * [haproxy-lua-http](https://github.com/haproxytech/haproxy-lua-http)
 * [rxi/json](https://github.com/rxi/json.lua)
 * [wahern/luaossl](https://github.com/wahern/luaossl)
 
 Extract base64.lua & jwtverify.lua to the same directory like so:
 
-```
+```shell
 git clone git@github.com:kudelskisecurity/haproxy-cloudflare-jwt-validator.git
 sudo cp haproxy-cloudflare-jwt-validator/src/* /usr/local/share/lua/5.3
 ```
 
-Version
-=======
+# Version
+
 0.1.0
 
-
-Usage
-=====
-
-###Configuration:
+# Usage
 
 JWT Issuer: `https://test.cloudflareaccess.com` (replace with yours in the config below)
 
 Add the following settings in your `/etc/haproxy/haproxy.cfg` file: 
 
 Define a HAProxy backend, DNS Resolver, and ENV variables with the following names:
+
 ```
 global
   lua-load  /usr/local/share/lua/5.3/jwtverify.lua
@@ -59,7 +54,7 @@ resolvers dnsresolver
   hold valid 10s
 ```
 
-Obtain your Application Audience (AUD) Tag from cloudflare and define your backend with JWT validation:
+Obtain your Application Audience (AUD) Tag from Cloudflare and define your backend with JWT validation:
 
 ```
 backend my_jwt_validated_app

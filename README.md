@@ -37,13 +37,14 @@ Define a HAProxy backend, DNS Resolver, and ENV variables with the following nam
 ```
 global
   lua-load  /usr/local/share/lua/5.3/jwtverify.lua
-  setenv  OAUTH_JWKS_URL https://|cloudflare_jwt|/cdn-cgi/access/certs
-  setenv  OAUTH_ISSUER https://test.cloudflareaccess.com
+    setenv  OAUTH_HOST     test.cloudflareaccess.com
+    setenv  OAUTH_JWKS_URL https://|cloudflare_jwt|/cdn-cgi/access/certs
+    setenv  OAUTH_ISSUER   https://"${OAUTH_HOST}"
 
 backend cloudflare_jwt
   mode http
   default-server inter 10s rise 2 fall 2
-  server test.cloudflareaccess.com test.cloudflareaccess.com:443 check ssl verify required ca-file /etc/ssl/certs/ca-bundle.crt resolvers dnsresolver resolve-prefer ipv4
+  server "${OAUTH_HOST}" "${OAUTH_HOST}":443 check resolvers dnsresolver resolve-prefer ipv4
 
 resolvers dnsresolver
   nameserver dns1 1.1.1.1:53

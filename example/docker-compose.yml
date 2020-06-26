@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  haproxy_cloudflare_jwt_validator:
+    build: ../
+    image: haproxy_cloudflare_jwt_validator:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+
+  debug_http_listener:
+    image: mendhak/http-https-echo

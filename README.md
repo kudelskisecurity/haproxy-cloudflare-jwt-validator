@@ -61,7 +61,7 @@ Obtain your Application Audience (AUD) Tag from Cloudflare and define your backe
 backend my_jwt_validated_app
   mode http
   http-request deny unless { req.hdr(Cf-Access-Jwt-Assertion) -m found }
-  http-request set-var(txn.audience) str("4714c1358e65fe4b408ad6d432a5f878f08194bdb4752441fd56faefa9b2b6f2")
+  http-request set-var(txn.audience) str("1234567890abcde1234567890abcde1234567890abcde")
   http-request lua.jwtverify
   http-request deny unless { var(txn.authorized) -m bool }
   server haproxy 127.0.0.1:8080

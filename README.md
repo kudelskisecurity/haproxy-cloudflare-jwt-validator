@@ -14,6 +14,7 @@ Install the following dependencies:
 * [haproxy-lua-http](https://github.com/haproxytech/haproxy-lua-http)
 * [rxi/json](https://github.com/rxi/json.lua)
 * [wahern/luaossl](https://github.com/wahern/luaossl)
+* [diegonehab/luasocket](https://github.com/diegonehab/luasocket)
 
 Extract base64.lua & jwtverify.lua to the same directory like so:
 

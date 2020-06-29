@@ -2,14 +2,16 @@
 
 mkdir -p cloudflare_mock/cdn-cgi/access
 
+printf "\nGenerating Private Key & Certificate: \n"
 openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 \
     -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com" \
     -keyout certs/private.key  -out certs/certificate.pem
 
 CERT=$(cat certs/certificate.pem)
 
+printf "\nAdding Certificate to JWKS Endpoint: \n"
 jq -n --arg cert "$CERT" '{public_certs: [{kid: "1", cert: $cert}, {kid: "2", cert: $cert}]}' \
-  > cloudflare_mock/cdn-cgi/access/certs
+  > cloudflare_mock/cdn-cgi/access/certs && echo "done"
 
 docker-compose stop
 docker-compose up -d
@@ -38,8 +40,12 @@ done
 #wait a couple of seconds for the backends to start for haproxy
 sleep 3
 
+printf "\nCURL Response with Bad Cf-Access-Jwt-Assertion header: \n"
+curl -H "Cf-Access-Jwt-Assertion: non-valid-token" localhost:8080
+
 JWT_TOKEN=$(jwtgen -a RS256 -p certs/private.key --claims "$CLAIM")
 
+printf "\nCURL Response with Valid Cf-Access-Jwt-Assertion header: \n"
 curl -H "Cf-Access-Jwt-Assertion: ${JWT_TOKEN}" localhost:8080
 
 docker-compose stop

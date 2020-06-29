@@ -278,6 +278,20 @@ function jwtverify(txn)
         goto out
     end
 
+    -- 7. Add custom values from payload to variable
+    if token.payloaddecoded.custom ~= nil then
+        for name, payload in pairs(token.payloaddecoded.custom) do
+            local clean_name = name:gsub("%W","_")
+            local clean_value = payload
+            if (type(payload) == 'table') then
+                clean_value = table.concat(payload, ',')
+            end
+
+            txn.set_var(txn, "txn."..clean_name, clean_value)
+            log_debug("txn."..clean_name.." is defined from payload")
+        end
+    end
+
     -- 8. Set authorized variable
     log_debug("req.authorized = true")
     txn.set_var(txn, "txn.authorized", true)

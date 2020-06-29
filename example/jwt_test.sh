@@ -30,7 +30,14 @@ CLAIM='{
   "exp": 3993204858,
   "type": "app",
   "identity_nonce": "11111111111",
-  "custom": {}
+  "custom": {
+    "http://schemas/groups": [
+      "application_admin",
+      "application_group1",
+      "application_group2",
+      "application_group3"
+    ]
+  }
 }'
 
 while ! nc -z localhost 8080; do

@@ -7,6 +7,8 @@ haproxy-cloudflare-jwt-validator - JSON Web Token validation for haproxy
 This was tested & developed with HAProxy version 1.8.25 & Lua version 5.3.
 This library provides the ability to validate JWT headers sent by Cloudflare Access. 
 
+Based off of [haproxytech/haproxy-lua-jwt](https://github.com/haproxytech/haproxy-lua-jwt)
+
 # Installation
 
 Install the following dependencies:

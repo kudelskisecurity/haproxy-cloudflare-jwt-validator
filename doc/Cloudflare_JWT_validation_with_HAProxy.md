@@ -23,7 +23,6 @@ the JSON Web Token (like SAML group information) to HAProxy.
 
 -   [Introduction](#Introduction)
 -   [What is haproxy-cloudflare-jwt-validator?](#What-is-haproxy-cloudflare-jwt-validator?)
--   [Table of Contents](#Table-of Contents)
 -   [What are JSON Web Tokens?](#What-are-JSON-Web-Tokens)
 -   [What is a JWKs?](#What-is-a-JWKs)
 -   [Why should we validate JSON Web Tokens?](#Why-should-we-validate-JSON-Web-Tokens?)
@@ -32,7 +31,7 @@ the JSON Web Token (like SAML group information) to HAProxy.
     -   [Run the Test](#Run-the-Test)
     -   [How it works](#How-it-works)
 -   [Installing the JWT validation script](#Installing-the-JWT-validation-script)
-    -   [Dependencies](#Dependencies)
+    -   [Dependencies](#Dependencies-1)
 -   [Enabling the plugin](#Enabling-the-plugin)
 -   [Authentication validation with JWT](#Authentication-validation-with-JWT)
 -   [Authorization validation with JWT](#Authorization-validation-with-JWT)

@@ -1,6 +1,6 @@
-#Cloudflare JWT Validation with HAProxy
+# Cloudflare JWT Validation with HAProxy
 
-##Introduction
+## Introduction
 
 This post is a step-by-step guide to implement JWT-based authentication
 with HAProxy & Cloudflare Access. We have created a JWT validation
@@ -8,8 +8,7 @@ script that is available here:
 [haproxy-cloudflare-jwt-validator](https://github.com/kudelskisecurity/haproxy-cloudflare-jwt-validator)
 to use with HAProxy.
 
-##What is haproxy-cloudflare-jwt-validator?
-
+## What is haproxy-cloudflare-jwt-validator?
 
 haproxy-cloudflare-jwt-validator is a lua script for HAProxy that
 validates JWT from a Cloudflare JWKS endpoint. It’s able to handle
@@ -20,7 +19,7 @@ the JSON Web Token (like SAML group information) to HAProxy.
 
 ![](diagram.png "HAProxy JWT Diagram")
 
-##Table of Contents
+## Table of Contents
 
 -   [Introduction](#Introduction)
 -   [What is haproxy-cloudflare-jwt-validator?](#What-is-haproxy-cloudflare-jwt-validator?)
@@ -41,7 +40,7 @@ the JSON Web Token (like SAML group information) to HAProxy.
     -   [HAProxy Based Authorization](#HAProxy-Based-Authorization)
     -   [Refs](#Refs)
     
-#What are JSON Web Tokens?
+## What are JSON Web Tokens?
 
 JSON web tokens are an open standard for transmitting information
 between 2 parties as a JSON object. These tokens can contain user, group
@@ -49,7 +48,7 @@ and other information. They can be trusted because they can be verified
 since they are digitally signed. Cloudflare signs their JWT tokens with
 SHA-256 using a private & public key pair.
 
-#What is a JWKs?
+## What is a JWKs?
 
 A JSON Web Key set is a JSON structure that exposes public keys and
 certificates that are used for validating JSON Web Tokens. Cloudflare
@@ -58,7 +57,7 @@ exposes their JWKs at
 additionally rotates the certificates they use at this endpoint on a
 regular basis.
 
-#Why should we validate JSON Web Tokens?
+## Why should we validate JSON Web Tokens?
 
 Cloudflare recommends [whitelisting cloudflare
 IPs](https://www.cloudflare.com/ips/) and validating the JWT for the
@@ -69,7 +68,7 @@ sure to validate the JWT token in order to prevent access from a
 non-authorized Cloudflare account and to ensure that nothing goes past
 your Access Application rules.
 
-#Demo - Signing & Validating your own JWT Locally
+## Demo - Signing & Validating your own JWT Locally
 
 We have provided an example here for [signing a JSON web token and
 validating the token](https://github.com/kudelskisecurity/haproxy-cloudflare-jwt-validator/tree/master/example)
@@ -215,7 +214,7 @@ The jwtverify.lua script then gets triggered via the defined HAProxy
 backend. It decodes the token, validates the algorithm, signature,
 expiration, issuer, and audience.
 
-#Installing the JWT validation script
+## Installing the JWT validation script
 
 ### Dependencies
 
@@ -282,7 +281,7 @@ ln -s /usr/local/share/lua/5.3/haproxy-cloudflare-jwt-validator-$
  {VERSION}/src/jwtverify.lua /usr/local/share/lua/5.3/jwtverify.lua    
 ```
 
-##Enabling the plugin
+## Enabling the plugin
 
 Once the lua script is installed… the plugin can be enabled by enabling
 the following configuration options in `/etc/haproxy/haproxy.cfg`
@@ -311,7 +310,7 @@ resolvers dnsresolver
   hold valid 10s                                                  
 ```
 
-##Authentication validation with JWT
+## Authentication validation with JWT
 
 In addition to validating the JWT token with
 haproxy-cloudflare-jwt-validator, it’s recommended to block and only
@@ -361,7 +360,7 @@ Assuming that all of the above checks pass… the request is then allowed.
 If any of the above checks fail. HAProxy will respond with a 403
 (Unauthorized) error.
 
-##Authorization validation with JWT
+## Authorization validation with JWT
 
 App Authorization runs under the assumption that you can pass
 information from Cloudflare such as group information, permissions, etc

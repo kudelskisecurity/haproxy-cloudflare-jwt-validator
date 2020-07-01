@@ -445,3 +445,4 @@ backend my_jwt_validated_app_backend
 ### Refs
 
 -   JWT → <https://jwt.io/introduction/>
+-   haproxy-lua-jwt → <https://github.com/haproxytech/haproxy-lua-jwt>

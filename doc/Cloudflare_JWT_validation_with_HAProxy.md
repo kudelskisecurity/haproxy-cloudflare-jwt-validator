@@ -1,5 +1,20 @@
 # Cloudflare JWT Validation with HAProxy
 
+## TL;DR
+
+This setup allows us to implement JWT-based authentication directly within HAProxy.
+Coupled with [Cloudflare Access](https://teams.cloudflare.com/access), it creates a
+powerful and flexible solution to securely expose applications to Cloudflare Access in
+multi/hybrid-cloud environments. It also allows us to upgrade the security of our
+legacy applications by putting a layer of strong authentication (external IdP + MFA)
+and authorization on top of them.
+
+It can help companies that are transitioning to a [BeyondCorp model](https://www.beyondcorp.com),
+by leveraging industry-standards like HAProxy.
+
+Last but not least, this blog-post is about HAProxy in a Cloudflare Access context
+but the code and logic can be applied to anything that uses JWT-based authentication.
+
 ## Introduction
 
 This post is a step-by-step guide to implement JWT-based authentication
@@ -10,12 +25,12 @@ to use with HAProxy.
 
 ## What is haproxy-cloudflare-jwt-validator?
 
-haproxy-cloudflare-jwt-validator is a lua script for HAProxy that
-validates JWT from a Cloudflare JWKS endpoint. It’s able to handle
-Authorization and Authentication because it validates each request to
-make sure that it’s associated with the correct Cloudflare Access
-Application. It is additionally able to pass any custom information from
-the JSON Web Token (like SAML group information) to HAProxy.
+[haproxy-cloudflare-jwt-validator](https://github.com/kudelskisecurity/haproxy-cloudflare-jwt-validator)
+is a lua script for HAProxy that validates JWT from a Cloudflare JWKS endpoint.
+It’s able to handle authorization and authentication because it validates each
+request to make sure that it’s associated with the correct Cloudflare Access
+Application. It is additionally able to pass any custom information from the
+JSON Web Token (like SAML group information) to HAProxy.
 
 ![](diagram.png "HAProxy JWT Diagram")
 
@@ -167,7 +182,7 @@ To start off, we generate a private key and a certificate with openssl.
 We stick with default values just because this is a demo scenario and it
 doesn’t matter for this test.
 
-```
+```bash
 openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 \        
     -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com 
  " \                                                                   
@@ -187,26 +202,25 @@ jq -n --arg cert "$CERT" '{public_certs: [{kid: "1", cert: $cert}
 
 We then use a custom claim to generate a JWT token.
 
-```
-CLAIM='{                                                          
-  "aud": [                                                        
-    "1234567890abcde1234567890abcde1234567890abcde"               
-  ],                                                              
-  "email": "random-email@email.com",                              
-  "sub": "1234567890",                                            
-  "name": "John Doe",                                             
-  "admin": true,                                                  
-  "iss": "http://cloudflare_mock",                                
-  "iat": 1593204858,                                              
-  "nbf": 1593204858,                                              
-  "exp": 3993204858,                                              
-  "type": "app",                                                  
-  "identity_nonce": "11111111111",                                
-  "custom": {}                                                    
-}'                                                                
-JWT_TOKEN=$(jwtgen -a RS256 -p certs/private.key --claims "$CLAIM 
- ")                                                                    
-curl -H "Cf-Access-Jwt-Assertion: ${JWT_TOKEN}" localhost:8080    
+```bash
+CLAIM='{
+  "aud": [
+    "1234567890abcde1234567890abcde1234567890abcde"
+  ],
+  "email": "random-email@email.com",
+  "sub": "1234567890",
+  "name": "John Doe",
+  "admin": true,
+  "iss": "http://cloudflare_mock",
+  "iat": 1593204858,
+  "nbf": 1593204858,
+  "exp": 3993204858,
+  "type": "app",
+  "identity_nonce": "11111111111",
+  "custom": {}
+}'
+JWT_TOKEN=$(jwtgen -a RS256 -p certs/private.key --claims "$CLAIM")
+curl -H "Cf-Access-Jwt-Assertion: ${JWT_TOKEN}" localhost:8080
 ```
 
 The jwtverify.lua script then gets triggered via the defined HAProxy
@@ -222,48 +236,43 @@ dependencies that need to be installed on your system;
 
 Debian/Ubuntu Instructions:
 
-```
-sudo apt install lua5.3 liblua5.3-dev wget make libssl-dev        
-sudo mkdir -p /usr/local/share/lua/5.3                            
+```bash
+sudo apt install lua5.3 liblua5.3-dev wget make libssl-dev
+sudo mkdir -p /usr/local/share/lua/5.3
 ```
 
 [haproxy-lua-http](https://github.com/haproxytech/haproxy-lua-http):
 
-```
-wget https://github.com/haproxytech/haproxy-lua-http/archive/mast 
- er.tar.gz                                                             
-tar -xf master.tar.gz -C /usr/local/share/lua/5.3                 
-cp /usr/local/share/lua/5.3/haproxy-lua-http-master/http.lua /usr 
- /local/share/lua/5.3/http.lua                                         
+```bash
+wget https://github.com/haproxytech/haproxy-lua-http/archive/master.tar.gz
+tar -xf master.tar.gz -C /usr/local/share/lua/5.3
+cp /usr/local/share/lua/5.3/haproxy-lua-http-master/http.lua /usr/local/share/lua/5.3/http.lua
 ```
 
-[rxi/json](https://github.com/rxi/json.lua)
+[rxi/json](https://github.com/rxi/json.lua):
 
-```
-wget https://github.com/rxi/json.lua/archive/v0.1.2.tar.gz        
-tar -xf v0.1.2.tar.gz -C /usr/local/share/lua/5.3                 
-ln -s /usr/local/share/lua/5.3/json.lua-0.1.2/json.lua /usr/local 
- /share/lua/5.3/json.lua                                               
+```bash
+wget https://github.com/rxi/json.lua/archive/v0.1.2.tar.gz
+tar -xf v0.1.2.tar.gz -C /usr/local/share/lua/5.3
+ln -s /usr/local/share/lua/5.3/json.lua-0.1.2/json.lua /usr/local/share/lua/5.3/json.lua
 ```
 
-[wahern/luaossl](https://github.com/wahern/luaossl)
+[wahern/luaossl](https://github.com/wahern/luaossl):
 
-```
-wget https://github.com/wahern/luaossl/archive/rel-20190731.tar.g 
- z                                                                     
-tar -xf rel-20190731.tar.gz -C /usr/local/share/lua/5.3           
-cd /usr/local/share/lua/5.3/luaossl-rel-20190731                  
-make install                                                      
+```bash
+wget https://github.com/wahern/luaossl/archive/rel-20190731.tar.gz
+tar -xf rel-20190731.tar.gz -C /usr/local/share/lua/5.3
+cd /usr/local/share/lua/5.3/luaossl-rel-20190731
+make install
 ```
 
 [diegonehab/luasocket](https://github.com/diegonehab/luasocket)
 
-```
-wget https://github.com/diegonehab/luasocket/archive/master.tar.g 
- z                                                                     
-tar -xf master.tar.gz -C /usr/local/share/lua/5.3                 
-cd /usr/local/share/lua/5.3/luasocket-master                      
-make clean all install-both LUAINC=/usr/include/lua5.3            
+```bash
+wget https://github.com/diegonehab/luasocket/archive/master.tar.gz
+tar -xf master.tar.gz -C /usr/local/share/lua/5.3
+cd /usr/local/share/lua/5.3/luasocket-master
+make clean all install-both LUAINC=/usr/include/lua5.3
 ```
 
 Once the dependencies are installed install the latest release of the
@@ -271,13 +280,10 @@ plugin:
 
 <https://github.com/kudelskisecurity/haproxy-cloudflare-jwt-validator/releases/latest>
 
-```
-tar -xf haproxy-cloudflare-jwt-validator-${VERSION}.tar.gz -C /us 
- r/local/share/lua/5.3                                                 
-ln -s /usr/local/share/lua/5.3/haproxy-cloudflare-jwt-validator-$ 
- {VERSION}/src/base64.lua /usr/local/share/lua/5.3/base64.lua          
-ln -s /usr/local/share/lua/5.3/haproxy-cloudflare-jwt-validator-$ 
- {VERSION}/src/jwtverify.lua /usr/local/share/lua/5.3/jwtverify.lua    
+```bash
+tar -xf haproxy-cloudflare-jwt-validator-${VERSION}.tar.gz -C /usr/local/share/lua/5.3
+ln -s /usr/local/share/lua/5.3/haproxy-cloudflare-jwt-validator-${VERSION}/src/base64.lua /usr/local/share/lua/5.3/base64.lua
+ln -s /usr/local/share/lua/5.3/haproxy-cloudflare-jwt-validator-${VERSION}/src/jwtverify.lua /usr/local/share/lua/5.3/jwtverify.lua
 ```
 
 ## Enabling the plugin
@@ -287,26 +293,24 @@ the following configuration options in `/etc/haproxy/haproxy.cfg`
 (replace `test.cloudflareaccess.com` with your JWT issuer)
 
 ```
-global                                                            
-  lua-load  /usr/local/share/lua/5.3/jwtverify.lua                
-  setenv  OAUTH_HOST     test.cloudflareaccess.com                
-  setenv  OAUTH_JWKS_URL https://|cloudflare_jwt|/cdn-cgi/access/ 
- certs                                                                 
-  setenv  OAUTH_ISSUER   https://"${OAUTH_HOST}"                  
-                                                                  
-backend cloudflare_jwt                                            
-  mode http                                                       
-  default-server inter 10s rise 2 fall 2                          
-  server "${OAUTH_HOST}" "${OAUTH_HOST}":443 check resolvers dnsr 
- esolver resolve-prefer ipv4                                           
-                                                                  
-resolvers dnsresolver                                             
-  nameserver dns1 1.1.1.1:53                                      
-  nameserver dns2 1.0.0.1:53                                      
-  resolve_retries 3                                               
-  timeout retry 1s                                                
-  hold nx 10s                                                     
-  hold valid 10s                                                  
+global
+  lua-load  /usr/local/share/lua/5.3/jwtverify.lua
+  setenv  OAUTH_HOST     test.cloudflareaccess.com
+  setenv  OAUTH_JWKS_URL https://|cloudflare_jwt|/cdn-cgi/access/certs
+  setenv  OAUTH_ISSUER   https://"${OAUTH_HOST}"
+
+backend cloudflare_jwt
+  mode http
+  default-server inter 10s rise 2 fall 2
+  server "${OAUTH_HOST}" "${OAUTH_HOST}":443 check resolvers dnsresolver resolve-prefer ipv4
+
+resolvers dnsresolver
+  nameserver dns1 1.1.1.1:53
+  nameserver dns2 1.0.0.1:53
+  resolve_retries 3
+  timeout retry 1s
+  hold nx 10s
+  hold valid 10s
 ```
 
 ## Authentication validation with JWT
@@ -322,23 +326,21 @@ your pre-defined backend or frontend.
 For example:
 
 ```
-backend my_jwt_validated_app_backend                              
-  mode http                                                       
-  http-request deny unless { req.hdr(Cf-Access-Jwt-Assertion) -m  
- found }                                                               
-  http-request set-var(txn.audience) str("1234567890abcde12345678 
- 90abcde1234567890abcde")                                              
-  http-request lua.jwtverify                                      
-  http-request deny unless { var(txn.authorized) -m bool }        
-  server haproxy 127.0.0.1:8080                                   
-frontend my_jwt_validated_app_frontend                            
-  bind *:80                                                       
-  mode http                                                       
-  use_backend my_jwt_validated_app_backend                        
+backend my_jwt_validated_app_backend
+  mode http
+  http-request deny unless { req.hdr(Cf-Access-Jwt-Assertion) -m found }
+  http-request set-var(txn.audience) str("1234567890abcde1234567890abcde1234567890abcde")
+  http-request lua.jwtverify
+  http-request deny unless { var(txn.authorized) -m bool }
+  server haproxy 127.0.0.1:8080
+frontend my_jwt_validated_app_frontend
+  bind *:80
+  mode http
+  use_backend my_jwt_validated_app_backend
 ```
 
 Using the configuration above… when a HTTP request comes through to port
-80 the following checks are performed;
+80 the following checks are performed:
 
 -   Validates that the `Cf-Access-Jwt-Assertion` Header is set
 
@@ -361,7 +363,7 @@ If any of the above checks fail. HAProxy will respond with a 403
 
 ## Authorization validation with JWT
 
-App Authorization runs under the assumption that you can pass
+App authorization runs under the assumption that you can pass
 information from Cloudflare such as group information, permissions, etc
 ... as part of the JWT token.
 
@@ -376,19 +378,19 @@ included as part of the decoded JSON Web Token as part of the ‘custom’
 key. Ex:
 
 ```
-{                                                                 
-  ...                                                             
-  "email": "random-email@email.com",                              
-  "name": "John Doe",                                             
-  "custom": {                                                     
-    "http://schemas/groups": [                                    
-      "application_admin",                                        
-      "application_group1",                                       
-      "application_group2",                                       
-      "application_group3"                                        
-    ]                                                             
-  }                                                               
-}                                                                 
+{
+  ...
+  "email": "random-email@email.com",
+  "name": "John Doe",
+  "custom": {
+    "http://schemas/groups": [
+      "application_admin",
+      "application_group1",
+      "application_group2",
+      "application_group3"
+    ]
+  }
+}
 ```
 
 The haproxy-cloudflare-jwt-validate script will take the keys defined in
@@ -405,17 +407,14 @@ through will pass this header information to the backend by simply using
 `set-headers`.
 
 ```
-backend my_jwt_validated_app_backend                              
-  mode http                                                       
-  http-request deny unless { req.hdr(Cf-Access-Jwt-Assertion) -m  
- found }                                                               
-  http-request set-var(txn.audience) str("1234567890abcde12345678 
- 90abcde1234567890abcde")                                              
-  http-request lua.jwtverify                                      
-  http-request deny unless { var(txn.authorized) -m bool }        
-  http-request set-header custom-groups %[var(txn.http___schemas_ 
- groups)]                                                              
-  server haproxy 127.0.0.1:8080                                   
+backend my_jwt_validated_app_backend
+  mode http
+  http-request deny unless { req.hdr(Cf-Access-Jwt-Assertion) -m found }
+  http-request set-var(txn.audience) str("1234567890abcde1234567890abcde1234567890abcde")
+  http-request lua.jwtverify
+  http-request deny unless { var(txn.authorized) -m bool }
+  http-request set-header custom-groups %[var(txn.http___schemas_groups)]
+  server haproxy 127.0.0.1:8080
 ```
 
 Your app can read the headers, create your user based off of these
@@ -424,25 +423,22 @@ headers, and assign it group information.
 ### HAProxy Based Authorization
 
 Another alternative that we can do, is we can validate presence that the
-user belongs to a certain group via haproxy directly. For example in the
+user belongs to a certain group via HAProxy directly. For example in the
 following scenario, HAProxy will not grant a user access unless they
 belong to the `application_admin` group.
 
 ```
-backend my_jwt_validated_app_backend                              
-  mode http                                                       
-  http-request deny unless { req.hdr(Cf-Access-Jwt-Assertion) -m  
- found }                                                               
-  http-request set-var(txn.audience) str("1234567890abcde12345678 
- 90abcde1234567890abcde")                                              
-  http-request lua.jwtverify                                      
-  http-request deny unless { var(txn.authorized) -m bool }        
-  http-request deny unless { var(txn.http___schemas_groups) -m su 
- b application_admin }                                                 
-  server haproxy 127.0.0.1:8080                                   
+backend my_jwt_validated_app_backend
+  mode http
+  http-request deny unless { req.hdr(Cf-Access-Jwt-Assertion) -m found }
+  http-request set-var(txn.audience) str("1234567890abcde1234567890abcde1234567890abcde")
+  http-request lua.jwtverify
+  http-request deny unless { var(txn.authorized) -m bool }
+  http-request deny unless { var(txn.http___schemas_groups) -m sub application_admin }
+  server haproxy 127.0.0.1:8080
 ```
 
 ### Refs
 
--   JWT → <https://jwt.io/introduction/>
--   haproxy-lua-jwt → <https://github.com/haproxytech/haproxy-lua-jwt>
+- [JWT](https://jwt.io/introduction)
+- [haproxy-lua-jwt](https://github.com/haproxytech/haproxy-lua-jwt)

@@ -23,6 +23,28 @@ script that is available here:
 [haproxy-cloudflare-jwt-validator](https://github.com/kudelskisecurity/haproxy-cloudflare-jwt-validator)
 to use with HAProxy.
 
+### Zero Trust Architecture?
+
+Does the idea of secure access to internal services without a VPN sound appealing? 
+
+Implementing Zero Trust in your system architecture means verifying & validating your users for each connection 
+that they make regardless of their source (ex: connecting from a VPN, connecting from home, connecting from 
+the office).
+
+[BeyondCorp](https://cloud.google.com/solutions/beyondcorp-remote-access) is Google's 
+specific implementation of this framework. With Cloudflare Access & HAProxy, we can implement a similar
+type of architecture.
+
+We can expose HTTP-services & applications with a public IP. We can then have Cloudflare DNS 
+sit in front of our public IP and proxy all requests. Cloudflare Access will intercept these requests and make sure 
+users are authenticated and authorized to access the service.   
+
+As long as we are an authenticated user, it doesn't matter to the application whether we are connecting 
+from the VPN, from home, or from the office. 
+
+As part of this workflow, Cloudflare Access sends JWT tokens to validate that the request is coming from them 
+and that it can be trusted. We can use haproxy-cloudflare-jwt-validator to validate these tokens. 
+
 ## What is haproxy-cloudflare-jwt-validator?
 
 [haproxy-cloudflare-jwt-validator](https://github.com/kudelskisecurity/haproxy-cloudflare-jwt-validator)
@@ -37,6 +59,7 @@ JSON Web Token (like SAML group information) to HAProxy.
 ## Table of Contents
 
 -   [Introduction](#Introduction)
+-   [Zero Trust Architecture?](#zero-trust-architecture?)
 -   [What is haproxy-cloudflare-jwt-validator?](#What-is-haproxy-cloudflare-jwt-validator?)
 -   [What are JSON Web Tokens?](#What-are-JSON-Web-Tokens)
 -   [What is a JWKs?](#What-is-a-JWKs)

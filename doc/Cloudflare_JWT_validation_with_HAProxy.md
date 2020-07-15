@@ -2,17 +2,21 @@
 
 ## TL;DR
 
-This setup allows us to implement JWT-based authentication directly within HAProxy.
-Coupled with [Cloudflare Access](https://teams.cloudflare.com/access), it creates a
-powerful and flexible solution to securely expose applications to Cloudflare Access in
-multi/hybrid-cloud environments. It also allows us to upgrade the security of our
-legacy applications by putting a layer of strong authentication (external IdP + MFA)
-and authorization on top of them.
+Implementing Zero Trust architecture means that users need to be authenticated & authorized to reach internal resources 
+by maintaining strict access controls and not trusting anyone by default, even those inside the network perimeter. 
 
-It can help companies that are transitioning to a [BeyondCorp model](https://www.beyondcorp.com),
+[haproxy-cloudflare-jwt-validator](https://github.com/kudelskisecurity/haproxy-cloudflare-jwt-validator) can help 
+companies that are transitioning to a Zero-Trust or [BeyondCorp model](https://www.beyondcorp.com)
 by leveraging industry-standards like HAProxy.
 
-Last but not least, this blog-post is about HAProxy in a Cloudflare Access context
+[haproxy-cloudflare-jwt-validator](https://github.com/kudelskisecurity/haproxy-cloudflare-jwt-validator) allows 
+JSON Web Token (JWT) based authentication to be implemented directly within HAProxy.
+Coupled with [Cloudflare Access](https://teams.cloudflare.com/access), it creates a
+powerful and flexible solution to securely expose applications to Cloudflare Access in
+multi/hybrid-cloud environments. It also enables the security of our legacy applications
+by adding a layer of strong authentication (external IdP + MFA) and authorization on top.
+
+Last but not least, this project is about HAProxy in a Cloudflare Access context
 but the code and logic can be applied to anything that uses JWT-based authentication.
 
 ## Introduction
@@ -25,25 +29,30 @@ to use with HAProxy.
 
 ### Zero Trust Architecture?
 
-Does the idea of secure access to internal services without a VPN sound appealing? 
+Does the idea of secure access to internal services without a VPN sound appealing?
+
+If so... you might want to implement a Zero Trust or 
+[BeyondCorp](https://cloud.google.com/solutions/beyondcorp-remote-access) model.  
 
 Implementing Zero Trust in your system architecture means verifying & validating your users for each connection 
 that they make regardless of their source (ex: connecting from a VPN, connecting from home, connecting from 
 the office).
 
-[BeyondCorp](https://cloud.google.com/solutions/beyondcorp-remote-access) is Google's 
-specific implementation of this framework. With Cloudflare Access & HAProxy, we can implement a similar
-type of architecture.
+With [Cloudflare Access](https://teams.cloudflare.com/access) & [HAProxy](http://www.haproxy.org/), we can implement 
+a similar type of architecture, expose services, and ensure user authentication. BeyondCorp is 
+Google's specific implementation of this similar framework. 
 
-We can expose HTTP-services & applications with a public IP. We can then have Cloudflare DNS 
-sit in front of our public IP and proxy all requests. Cloudflare Access will intercept these requests and make sure 
-users are authenticated and authorized to access the service.   
+Admins can expose HTTP-services & applications with a public IP and have Cloudflare proxy all requests to HAProxy. 
+Cloudflare Access will intercept these requests and ensure authenticated & authorized users are able to 
+access the service.  
 
-As long as we are an authenticated user, it doesn't matter to the application whether we are connecting 
+As long as the user is authenticated, it doesn't matter to the application whether they are connecting 
 from the VPN, from home, or from the office. 
 
 As part of this workflow, Cloudflare Access sends JWT tokens to validate that the request is coming from them 
-and that it can be trusted. We can use haproxy-cloudflare-jwt-validator to validate these tokens. 
+and that it can be trusted.  
+[haproxy-cloudflare-jwt-validator](https://github.com/kudelskisecurity/haproxy-cloudflare-jwt-validator) can 
+validate these tokens. 
 
 ## What is haproxy-cloudflare-jwt-validator?
 
@@ -126,7 +135,7 @@ installed on your system
 
 ### Run the Test
 
-To run the example.. simply run the script ex:
+To run the example... simply run the script ex:
 
 `bash jwt_test.sh`
 
@@ -394,7 +403,7 @@ For example, when you add an SAML Identity Provider to Cloudflare
 Access… you can define a list of SAML attributes that will get included
 as part of the encoded JSON Web Token. These attributes are passed
 through as variables that can be used in headers, HAProxy
-authentication, or even other lua scrips.
+authentication, or even other lua scripts.
 
 When you configure SAML attributes successfully, you will see them
 included as part of the decoded JSON Web Token as part of the ‘custom’
@@ -445,10 +454,9 @@ headers, and assign it group information.
 
 ### HAProxy Based Authorization
 
-Another alternative that we can do, is we can validate presence that the
-user belongs to a certain group via HAProxy directly. For example in the
-following scenario, HAProxy will not grant a user access unless they
-belong to the `application_admin` group.
+Another alternative that we can do, is we can validate the presence of a user's group 
+via HAProxy directly. For example in the following scenario, HAProxy will not grant a 
+user access unless they belong to the `application_admin` group.
 
 ```
 backend my_jwt_validated_app_backend

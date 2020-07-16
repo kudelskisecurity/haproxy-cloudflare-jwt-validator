@@ -2,7 +2,7 @@
 
 Hybrid and multi-cloud infrastructures are a real challenge in term of security
 and user accesses management. Traditional solutions like VPNs are usually not
-adapted for such scenario, they could still work but at the expense of building
+adapted for such scenarios. They could still work but at the expense of building
 a complex (and costly) web of interconnections and where micro-segmentation of
 accesses would be complex to manage. 
 
@@ -37,10 +37,10 @@ leveraging some tools and code that [we just open-sourced](https://github.com/ku
 
 ## Zero Trust in two lines
 
-Behind the buzzword, Zero Trust is not about making a system trusted it's about
+Behind the buzzword, Zero Trust is not about making a system trusted; it's about
 eliminating the trust that we would originally put on the network. So whenever your
-users are connecting on your application from the corporate network or from their home
-WiFI they will follow the same authentication and authorization workflow.
+users are connecting to your application from the corporate network or from their home
+WiFI, they will follow the same authentication and authorization workflow.
 
 Identity is one of the building-blocks of a Zero Trust Architecture (Identity Based Security)
 that's why Zero Trust is tightly linked to Identity And Accesses Management (IAM) and
@@ -58,19 +58,19 @@ If you want to read more on that topic:
 [Cloudflare Access](https://teams.cloudflare.com/access) is a SaaS Identity-aware-Proxy (IaP)
 developed by [Cloudflare](https://www.cloudflare.com) that can help companies willing
 to switch to a Zero Trust model by providing a platform-agnostic solution that covers
-most of companies use-cases.
+most use-cases.
 
 
 ## Exposing applications to Cloudflare Access
 
-Because Cloudflare Access is a SaaS product that is not physically linked to our
-datacenters, we needed to find a way to securely expose some of our applications
+Because Cloudflare Access is a SaaS product that is not physically linked to 
+datacenters, we needed to find a way to securely expose some applications
 to Cloudflare CDN over the public Internet. There's multiple ways and technologies
 to achieve that (including [Argo tunnels](https://www.cloudflare.com/products/argo-tunnel))
 but the solution that we choose and implemented for this particular use-case
 leverages HAProxy which is a product that we were already familiar with internally.
 
-We've added some glue on top of HAProxy, augmenting it's functionalities with it's LUA
+We've added some glue on top of HAProxy, augmenting its functionalities with its LUA
 engine by cryptographically validating requests coming from Cloudflare Access applications.
 (on top of doing Layer 4 network validations).
 
@@ -467,7 +467,7 @@ headers, and assign it group information.
 
 ### HAProxy Based Authorization
 
-Another alternative that we can do, is we can validate the presence of a user's group 
+Another alternative we can do, is validate the presence of a user's group 
 via HAProxy directly. For example in the following scenario, HAProxy will not grant a 
 user access unless they belong to the `application_admin` group.
 

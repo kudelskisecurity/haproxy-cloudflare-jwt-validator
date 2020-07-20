@@ -48,9 +48,10 @@ device-posture-management but that's probably worth another blog post.
 
 If you want to read more on that topic:
 
-* [What is a Zero Trust Architecture?](https://www.paloaltonetworks.com/cyberpedia/what-is-a-zero-trust-architecture)
-* [BeyondCorp model](https://www.beyondcorp.com)
-* [BeyondCorp](https://cloud.google.com/solutions/beyondcorp-remote-access)
+* [Zero Trust a Global Perspective][1]
+* [What is a Zero Trust Architecture?][2]
+* [BeyondCorp model][3]
+* [BeyondCorp][4]
 
 
 ## Cloudflare Access
@@ -483,12 +484,18 @@ backend my_jwt_validated_app_backend
 ```
 
 
-## Next steps
+## References and links
 
-* Device posture management
-* IAM strategy ...
+* [Zero Trust a Global Perspective][1]
+* [What is a Zero Trust Architecture?][2]
+* [BeyondCorp model][3]
+* [BeyondCorp][4]
+* [JWT][5]
+* [haproxy-lua-jwt][6]
 
-## Refs
-
-- [JWT](https://jwt.io/introduction)
-- [haproxy-lua-jwt](https://github.com/haproxytech/haproxy-lua-jwt)
+[1]: https://www.okta.com/blog/2020/05/zero-trust-a-global-perspective
+[2]: https://www.paloaltonetworks.com/cyberpedia/what-is-a-zero-trust-architecture
+[3]: https://www.beyondcorp.com
+[4]: https://cloud.google.com/solutions/beyondcorp-remote-access
+[5]: https://jwt.io/introduction
+[6]: https://github.com/haproxytech/haproxy-lua-jwt

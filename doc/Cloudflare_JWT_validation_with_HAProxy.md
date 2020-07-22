@@ -40,10 +40,10 @@ leveraging some tools and code that [we just open-sourced](https://github.com/ku
 Behind the buzzword, Zero Trust is not about making a system trusted; it's about
 eliminating the trust that we would originally put on the network. So whenever your
 users are connecting to your application from the corporate network or from their home
-WiFI, they will follow the same authentication and authorization workflow.
+WiFi, they will follow the same authentication and authorization workflow.
 
 Identity is one of the building-blocks of a Zero Trust Architecture (Identity Based Security)
-that's why Zero Trust is tightly linked to Identity And Accesses Management (IAM) and
+that's why Zero Trust is tightly linked to Identity and Accesses Management (IAM) and
 device-posture-management but that's probably worth another blog post.
 
 If you want to read more on that topic:
@@ -69,7 +69,8 @@ datacenters, we needed to find a way to securely expose some applications
 to Cloudflare CDN over the public Internet. There's multiple ways and technologies
 to achieve that (including [Argo tunnels](https://www.cloudflare.com/products/argo-tunnel))
 but the solution that we choose and implemented for this particular use-case
-leverages HAProxy which is a product that we were already familiar with internally.
+leverages HAProxy (a TCP/HTTP load-balancer) which is a product that we were already
+familiar with internally.
 
 We've added some glue on top of HAProxy, augmenting its functionalities with its LUA
 engine by cryptographically validating requests coming from Cloudflare Access applications.

@@ -76,7 +76,7 @@ We've added some glue on top of HAProxy, augmenting its functionalities with its
 engine by cryptographically validating requests coming from Cloudflare Access applications.
 (on top of doing Layer 4 network validations).
 
-![](diagram.png "HAProxy JWT Diagram")
+![](01_cloudflare_use_cases_haproxy_unbranded.png "HAProxy JWT Diagram")
 
 
 ## Step-by-step implementation

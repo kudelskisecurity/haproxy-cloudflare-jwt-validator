@@ -69,3 +69,7 @@ backend my_jwt_validated_app
   http-request deny unless { var(txn.authorized) -m bool }
   server haproxy 127.0.0.1:8080
 ```
+
+# Blogpost
+
+This work has been publish in [our Kudelskisecurity Research blog](https://research.kudelskisecurity.com/2020/08/04/first-steps-towards-a-zero-trust-architecture/)

@@ -4,7 +4,18 @@ WORKDIR /root
 
 # hadolint ignore=DL3003
 RUN apt-get update && \
-    apt-get install lua5.3 liblua5.3-dev wget make libssl-dev -y && \
+    apt-get install --no-install-recommends \
+    ca-certificates \
+    pkg-config \
+    libtool-bin \
+    libgpm2 \
+    publicsuffix \
+    lua5.3 \
+    liblua5.3-dev \
+    wget \
+    make \
+    libssl-dev -y && \
+    rm -rf /var/lib/apt/lists/* && \
     mkdir -p /usr/local/share/lua/5.3 && \
     #haproxy-lua-http
     wget https://github.com/haproxytech/haproxy-lua-http/archive/master.tar.gz && \

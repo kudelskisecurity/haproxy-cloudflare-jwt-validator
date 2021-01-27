@@ -1,4 +1,4 @@
-FROM haproxy:1.9
+FROM haproxy:2.3
 
 WORKDIR /root
 

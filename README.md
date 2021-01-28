@@ -70,6 +70,14 @@ backend my_jwt_validated_app
   server haproxy 127.0.0.1:8080
 ```
 
+# Docker
+
+```
+docker run \
+-v path_to/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg \
+kudelskisecurity/haproxy-cloudflare-jwt-validator:0.2.0 
+```
+
 # Blogpost
 
 This work has been publish in [our Kudelskisecurity Research blog](https://research.kudelskisecurity.com/2020/08/04/first-steps-towards-a-zero-trust-architecture/)

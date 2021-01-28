@@ -27,7 +27,7 @@ sudo cp haproxy-cloudflare-jwt-validator/src/* /usr/local/share/lua/5.3
 
 # Version
 
-0.2.0
+0.3.0
 
 # Usage
 
@@ -75,7 +75,7 @@ backend my_jwt_validated_app
 ```
 docker run \
 -v path_to/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg \
-kudelskisecurity/haproxy-cloudflare-jwt-validator:0.2.0 
+kudelskisecurity/haproxy-cloudflare-jwt-validator:0.3.0 
 ```
 
 # Blogpost

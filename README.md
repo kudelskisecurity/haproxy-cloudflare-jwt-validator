@@ -27,7 +27,7 @@ sudo cp haproxy-cloudflare-jwt-validator/src/* /usr/local/share/lua/5.3
 
 # Version
 
-0.3.0
+0.3.1
 
 # Usage
 

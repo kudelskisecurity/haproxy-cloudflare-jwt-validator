@@ -77,7 +77,7 @@ local function decodeJwt(authorizationHeader)
     local headerFields = core.tokenize(authorizationHeader, " .")
 
     if #headerFields ~= 3 then
-        log_info("Improperly formated Authorization header. Should be followed by 3 token sections.")
+        log_debug("Improperly formated Authorization header. Should be followed by 3 token sections.")
         return nil
     end
 
@@ -91,19 +91,19 @@ local function decodeJwt(authorizationHeader)
     token.signature = headerFields[3]
     token.signaturedecoded = base64.decode(token.signature)
 
-    log_info('Authorization header: ' .. authorizationHeader)
-    log_info('Decoded JWT header: ' .. dump(token.headerdecoded))
-    log_info('Decoded JWT payload: ' .. dump(token.payloaddecoded))
+    log_debug('Authorization header: ' .. authorizationHeader)
+    log_debug('Decoded JWT header: ' .. dump(token.headerdecoded))
+    log_debug('Decoded JWT payload: ' .. dump(token.payloaddecoded))
 
     return token
 end
 
 local function algorithmIsValid(token)
     if token.headerdecoded.alg == nil then
-        log_info("No 'alg' provided in JWT header.")
+        log_debug("No 'alg' provided in JWT header.")
         return false
     elseif token.headerdecoded.alg ~= 'RS256' then
-        log_info("RS256 supported. Incorrect alg in JWT: " .. token.headerdecoded.alg)
+        log_debug("RS256 supported. Incorrect alg in JWT: " .. token.headerdecoded.alg)
         return false
     end
 
@@ -178,7 +178,7 @@ local function getJwksData(url)
 
     local ip_url = string.gsub(url, '|'..be..'|', addr)
 
-    log_info('retrieving JWKS Public Key Data')
+    log_info('Retrieving JWKS Public Key Data')
 
     local response, err = http.get{url=ip_url, headers={Host=server_name}}
     if not response then
@@ -211,7 +211,7 @@ local function getJwksData(url)
 
     for _,v in pairs(JWKS_response.public_certs) do
         table.insert(publicKeys,openssl.x509.new(v.cert):getPublicKey())
-        log_notice("Public Key Cached: " .. v.kid)
+        log_info("Public Key Cached: " .. v.kid)
     end
 
     local max_age
@@ -245,13 +245,13 @@ function jwtverify(txn)
     -- 1. Decode and parse the JWT
     local token = decodeJwt(txn.sf:req_hdr("cf-access-jwt-assertion"))
     if token == nil then
-        log_info("Token could not be decoded.")
+        log_debug("Token could not be decoded.")
         goto out
     end
 
     -- 2. Verify the signature algorithm is supported (RS256)
     if algorithmIsValid(token) == false then
-        log_info("Algorithm not valid.")
+        log_debug("Algorithm not valid.")
         goto out
     end
 
@@ -261,7 +261,7 @@ function jwtverify(txn)
     end
 
     if signature_valid == false then
-        log_info("Signature not valid.")
+        log_debug("Signature not valid.")
 
         if not signature_valid then
             goto out
@@ -316,10 +316,10 @@ end
 -- On a high level it tries to get the public key from our jwks url
 -- based on an interval. The interval we use is based on the cache headers as part of the JWKS response
 function refresh_jwks()
-    log_notice("Refresh JWKS task initialized")
+    log_info("Refresh JWKS task initialized")
 
     while true do
-        log_notice('Refreshing JWKS data')
+        log_info('Refreshing JWKS data')
         local status, publicKeys = xpcall(getJwksData, debug.traceback, config.jwks_url)
         if status then
             config.publicKeys = publicKeys
@@ -328,7 +328,7 @@ function refresh_jwks()
             log_alert("Unable to set public keys: "..tostring(err))
         end
 
-        log_notice('Getting new Certificate in '..(config.publicKeys.expiresIn)..' seconds - '
+        log_info('Getting new Certificate in '..(config.publicKeys.expiresIn)..' seconds - '
                 ..os.date('%c', os.time() + config.publicKeys.expiresIn))
         core.sleep(config.publicKeys.expiresIn)
     end
@@ -339,8 +339,8 @@ end
 core.register_init(function()
     config.issuer = os.getenv("OAUTH_ISSUER")
     config.jwks_url = os.getenv("OAUTH_JWKS_URL")
-    log_notice("JWKS URL: " .. (config.jwks_url or "<none>"))
-    log_notice("Issuer: " .. (config.issuer or "<none>"))
+    log_info("JWKS URL: " .. (config.jwks_url or "<none>"))
+    log_info("Issuer: " .. (config.issuer or "<none>"))
 end)
 
 -- Called on a request.

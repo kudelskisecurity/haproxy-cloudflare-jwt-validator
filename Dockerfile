@@ -1,45 +1,33 @@
-FROM haproxy:2.3
+FROM haproxy:2.4-alpine as builder
 
-WORKDIR /root
+USER root
+WORKDIR /tmp
 
-# hadolint ignore=DL3003
-RUN apt-get update && \
-    apt-get install --no-install-recommends \
-    ca-certificates \
-    pkg-config \
-    libtool-bin \
-    libgpm2 \
-    publicsuffix \
-    lua5.3 \
-    liblua5.3-dev \
-    wget \
-    make \
-    libssl-dev -y && \
-    rm -rf /var/lib/apt/lists/* && \
-    mkdir -p /usr/local/share/lua/5.3 && \
-    #haproxy-lua-http
-    wget https://github.com/haproxytech/haproxy-lua-http/archive/master.tar.gz && \
-    tar -xf master.tar.gz -C /usr/local/share/lua/5.3 && \
-    ln -s /usr/local/share/lua/5.3/haproxy-lua-http-master/http.lua /usr/local/share/lua/5.3/http.lua && \
-    rm /root/master.tar.gz && \
-    #json.lua
-    wget https://github.com/rxi/json.lua/archive/v0.1.2.tar.gz && \
-    tar -xf v0.1.2.tar.gz -C /usr/local/share/lua/5.3 && \
-    ln -s /usr/local/share/lua/5.3/json.lua-0.1.2/json.lua /usr/local/share/lua/5.3/json.lua && \
-    rm /root/v0.1.2.tar.gz && \
-    #luasocket
-    wget https://github.com/diegonehab/luasocket/archive/master.tar.gz && \
-    tar -xf master.tar.gz -C /usr/local/share/lua/5.3 && \
-    cd /usr/local/share/lua/5.3/luasocket-master && \
-    make clean all install-both LUAINC=/usr/include/lua5.3 && \
-    rm /root/master.tar.gz && \
-    #luaossl
-    cd /root && \
-    wget https://github.com/wahern/luaossl/archive/rel-20190731.tar.gz && \
-    tar -xf rel-20190731.tar.gz -C /usr/local/share/lua/5.3 && \
-    cd /usr/local/share/lua/5.3/luaossl-rel-20190731 && \
-    make install && \
-    rm /root/rel-20190731.tar.gz
+RUN apk add --no-cache build-base gcc musl-dev lua5.3 lua5.3-dev make openssl-dev
 
-COPY ./src/base64.lua /usr/local/share/lua/5.3
-COPY ./src/jwtverify.lua /usr/local/share/lua/5.3
+RUN mkdir -p /usr/local/share/lua/5.3
+RUN wget https://github.com/haproxytech/haproxy-lua-http/archive/master.tar.gz -O /tmp/haproxy-lua-http.tar.gz && \
+    tar -xf /tmp/haproxy-lua-http.tar.gz -C /tmp && \
+    cp /tmp/haproxy-lua-http-master/http.lua /usr/local/share/lua/5.3/http.lua
+RUN wget https://github.com/rxi/json.lua/archive/v0.1.2.tar.gz -O /tmp/json-lua.tar.gz && \
+    tar -xf /tmp/json-lua.tar.gz -C /tmp && \
+    cp /tmp/json.lua-*/json.lua /usr/local/share/lua/5.3/json.lua
+RUN wget https://github.com/diegonehab/luasocket/archive/master.tar.gz -O /tmp/luasocker.tar.gz && \
+    tar -xf /tmp/luasocker.tar.gz -C /tmp && \
+    cd /tmp/luasocket-master && \
+    make clean all install-both LUAINC=/usr/include/lua5.3
+RUN wget https://github.com/wahern/luaossl/archive/rel-20190731.tar.gz -O /tmp/rel.tar.gz && \
+    tar -xf /tmp/rel.tar.gz -C /tmp && \
+    cd /tmp/luaossl-rel-* && \
+    make install
+
+FROM haproxy:2.4-alpine
+
+USER root
+RUN apk add --no-cache ca-certificates lua5.3
+
+COPY --from=builder /usr/local/share/lua/5.3 /usr/local/share/lua/5.3
+COPY --from=builder /usr/local/lib/lua/5.3 /usr/local/lib/lua/5.3
+COPY ./src/base64.lua ./src/jwtverify.lua /usr/local/share/lua/5.3/
+
+USER haproxy

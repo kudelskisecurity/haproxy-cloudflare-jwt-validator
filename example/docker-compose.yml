@@ -18,7 +18,7 @@ services:
     image: mendhak/http-https-echo
 
   cloudflare_mock:
-    image: python:2.7
+    image: python:2.7-alpine
     volumes:
       - ./cloudflare_mock/cdn-cgi:/cdn-cgi
     expose:

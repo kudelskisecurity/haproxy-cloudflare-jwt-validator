@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 mkdir -p cloudflare_mock/cdn-cgi/access
+mkdir -p certs
 
 printf "\nGenerating Private Key & Certificate: \n"
 openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 \

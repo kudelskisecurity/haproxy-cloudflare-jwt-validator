@@ -1,4 +1,4 @@
-FROM haproxy:2.4-alpine as builder
+FROM haproxy:2.8-alpine as builder
 
 USER root
 WORKDIR /tmp
@@ -16,12 +16,12 @@ RUN wget https://github.com/diegonehab/luasocket/archive/master.tar.gz -O /tmp/l
     tar -xf /tmp/luasocker.tar.gz -C /tmp && \
     cd /tmp/luasocket-master && \
     make clean all install-both LUAINC=/usr/include/lua5.3
-RUN wget https://github.com/wahern/luaossl/archive/rel-20190731.tar.gz -O /tmp/rel.tar.gz && \
+RUN wget https://github.com/wahern/luaossl/archive/rel-20220711.tar.gz -O /tmp/rel.tar.gz && \
     tar -xf /tmp/rel.tar.gz -C /tmp && \
     cd /tmp/luaossl-rel-* && \
     make install
 
-FROM haproxy:2.4-alpine
+FROM haproxy:2.8-alpine
 
 USER root
 RUN apk add --no-cache ca-certificates lua5.3
